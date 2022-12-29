@@ -3,6 +3,8 @@
 export(PATH.inference)
 export(idealized_phylogeny)
 export(one_node.tree.dist)
+export(rP)
+export(rQ)
 export(ran_tree_with_states)
 export(state2mat.sparse)
 export(xcor)
