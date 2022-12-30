@@ -33,16 +33,16 @@ PATH's analytical tools can be applied to these types of data to,
 ### Vignettes
 For examples of how to apply PATH, see the vignettes listed below.
 
-* In [PATH analysis of idealized phylogenies](https://htmlpreview.github.io/?https://github.com/landau-lab/PATH/blob/main/vignettes/Idealized_phylogenies.html)
-we demonstate how to use PATH to measure phylogenetic correlations and to infer cell state transition dynamics
-on idealized phylogenies.
-* In [PATH analysis of somatic evolution](https://htmlpreview.github.io/?https://github.com/landau-lab/PATH/blob/main/vignettes/Somatic_evolution.html) 
-we demonstate how to use PATH to measure phylogenetic correlations and to infer cell state transition dynamics
+* [PATH analysis of idealized phylogenies](https://htmlpreview.github.io/?https://github.com/landau-lab/PATH/blob/main/vignettes/Idealized_phylogenies.html)
+demonstates how to use PATH to measure phylogenetic correlations and how to infer cell state transition dynamics
+on *idealized phylogenies*.
+* [PATH analysis of somatic evolution](https://htmlpreview.github.io/?https://github.com/landau-lab/PATH/blob/main/vignettes/Somatic_evolution.html) 
+demonstates how to use PATH to measure phylogenetic correlations and how to infer cell state transition dynamics
 on phylogenies simulated by a *sampled somatic evolutionary process*. 
 
-* In [PATH analysis of cancer]() is a demonstration
-on how to apply PATH to a published single-cell human patient-derived
-glioblastoma (GBM) tumor phylogeny, 
-to measure phylogenetic correlations, infer
-transition dynamics, and to discover heritable gene modules.
+* [PATH analysis of cancer]() demonstrates how to apply PATH to a patient-derived
+glioblastoma single-cell phylogeny,
+to measure transcriptional cell state heritability versus plasticity, 
+to infer cell state transition dynamics, and
+to discover heritable transcriptional modules in an unbiased fashion. 
 
