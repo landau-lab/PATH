@@ -1,6 +1,11 @@
 # PATH
 
 *Please note that this software is still in development and being updated*  
+### Installation 
+```r
+install.packages("devtools")
+devtools::install_github("landau-lab/PATH")
+```
 
 ### Introduction
 Here we introduce **PATH** -- the **P**hylogenetic **A**nalysis of **T**ranscriptional 
@@ -47,10 +52,9 @@ on idealized phylogenies.
 we demonstate how to use PATH to measure phylogenetic correlations and to infer cell state transition dynamics
 on phylogenies simulated by a *sampled somatic evolutionary process*. 
 
-* In [PATH analysis of glioblastoma]() is a demonstration
+* In [PATH analysis of cancer]() is a demonstration
 on how to apply PATH to a published single-cell human patient-derived
-glioblastoma phylogeny 
-([Chaligne R, Gaiti F, Silverbush D, and Schiffman JS *et. al. Nature Genetics*. 2021.](https://doi.org/10.1038/s41588-021-00927-7)), 
+glioblastoma (GBM) tumor phylogeny, 
 to measure phylogenetic correlations, infer
 transition dynamics, and to discover heritable gene modules.
 
