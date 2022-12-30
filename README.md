@@ -1,7 +1,7 @@
 # PATH: Phylogenetic Analysis of Transcriptional Heritability
 
-<p style="text-align:center;"><img
-src="PATH_logo.png" alt="drawing" width="100">
+<p align="center">
+  <img src="PATH_logo.png" alt="drawing" width="100"/>
 </p>
 
 *Please note that this software is not ready for general use
