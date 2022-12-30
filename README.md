@@ -1,6 +1,10 @@
-# PATH
+# PATH: Phylogenetic Analysis of Transcriptional Heritability
 
 *Please note that this software is still in development and being updated*  
+
+PATH is an R package for analyzing single-cell phylogenies, developed and
+maintained by the Landau Lab at the New York Genome Center \& Weill Cornell Medicine. 
+ 
 ### Installation 
 ```r
 install.packages("devtools")
