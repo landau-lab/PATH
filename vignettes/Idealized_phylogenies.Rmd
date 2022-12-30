@@ -1,0 +1,356 @@
+---
+title: "PATH analysis of idealized phylogenies"
+output: 
+  html_document:
+    fig_height: 3
+    fig_width: 7
+    fig_retina: 2
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.align = "center"
+)
+```
+
+```{r setup, message=FALSE}
+library(PATH)
+library(expm)
+library(ggplot2)
+library(ggtree)
+library(ggtreeExtra)
+library(tidytree)
+library(Matrix)
+library(patchwork)
+
+options(digits = 2)
+```
+
+### Introduction
+
+In this vignette we demonstrate how to use PATH to measure categorical cell state 
+phylogenetic correlations and how to infer cell state transition dynamics
+on phylogenies from simulations of *idealized* phylogenies. For a similar
+analysis using phylogenies simulated as a *sampled somatic evolutionary process*,
+see [this vignette](./Somatic_evolution.html).
+For more information about PATH, see our [bioRxiv preprint](). 
+
+In the [first section](#Markov), 
+a mathematical (Markov) model of cell state transition dynamics is introduced.
+
+In the [second section](#ideal), we apply PATH to analyze cell state patterns on
+an idealized phylogeny.
+
+
+### Cell state transition dynamics as a Markov process {#Markov}
+
+In this vignette we model the transitions between cell states
+over the course of somatic evolution as a 
+[Markov process](https://en.wikipedia.org/wiki/Markov_chain). 
+This means that transitions between cell states occur
+stochastically, *i.e.*, with some probability, and that the
+probability that a cell transitions to any state 
+only depends on its current state. 
+
+In order to simulate cell state transition dynamics during somatic 
+evolution we need to specify the $n$ number of possible distinct cell
+states and the $n^2$ transition probabilities connecting these states
+with the transition probability matrix $P$. 
+Each element $P_{ij}$ of this square $n$-dimensional matrix represents the
+probability of
+transitioning *from* state $i$ *to* state $j$, after
+one unit of time. 
+
+This matrix can be user-defined, for example, as shown below,
+but note that each row of $P$ must sum to $1$.
+```{r}
+# Example of a user-defined 2-dimensional transition probability matrix:
+P <- matrix(c(0.90, 0.08, 0.02,
+              0.10, 0.80, 0.10,
+              0.02, 0.08, 0.90),
+            3, 3,
+            byrow = T)
+P
+
+# The probability of transitioning 
+# from state 1 to state 2 
+# after one time-step is:
+P[1,2]
+
+# Likewise, the probability for a cell in state 1 
+# to remain in state 1 (i.e., not transition to any other state)
+# after one time-step is:
+P[1,1]
+```
+
+For a *discrete-time* model, the probabilities of transitioning between 
+states after $t$ units of time 
+(where $t$ is an integer), is given by $P^t$. 
+
+```{r }
+# Transition probabilities between cell states after 3 time-steps,
+# where '%^%' denotes the matrix power, is
+
+P%^%3
+
+```
+
+Furthermore, for very large $t$, transition probabilities converge to
+a *stationary* distribution, which in some cases, can be understood as
+the cell state equilibrium frequencies. 
+
+For example, the rows of $P^{1000}$ should converge to the stationary
+distribution 
+(computed using the [Perron Frobenius theorem](https://en.wikipedia.org/wiki/Perron%E2%80%93Frobenius_theorem)),
+
+```{r }
+# Transition probability matrix after 1,000 time-steps
+P%^%1000
+
+# Stationary distribution of P
+CGE::PF_eig(t(P))$vec
+```
+
+In the [next section](#ideal) we use
+PATH to analyze "idealized" phylogenies in which cell state transitions occur over
+discrete time-steps, as generations are non-overlapping and of
+equal duration, and so can be modeled using discrete-time transitions.
+However, for the sampled somatic evolutionary process model, 
+time is measured in continuous, not discrete, units, as
+generations can overlap, and the time between sequential cell divisions
+is not constant. 
+
+The transition *probability* matrix $P$ can be transformed into a
+transition *rate* matrix $Q$ by taking the matrix logarithm, 
+that is, $Q = \log P$. The elements in each row of $Q$ must sum to $0$,
+with the diagonal element equal to the negative sum of the off-diagonal
+elements (which are each $\geq 0$),
+*i.e.*, $Q_{ii} = -\sum_{j \neq i} Q_{ij}$. 
+
+To compute the transition probabilities $P(t)$ 
+for a (continuous) time-step $t$, we take the 
+[matrix exponential](https://en.wikipedia.org/wiki/Matrix_exponential) of $Q$, 
+such that $P(t)=e^{Qt}$. 
+
+```{r }
+# Get Q, the transition rate matrix by taking the matrix logarithm of P.
+Q <- expm::logm(P)
+
+Q
+```
+
+### Idealized phylogenies {#ideal}
+
+In this section we simulate cell state transition dynamics 
+(modeled as a Markov process discussed [above](#Markov))
+on an idealized phylogeny. An *idealized phylogeny* -- 
+is the term we use to refer to a completely sampled, discrete-time, 
+balanced, and bifurcating trees. Idealized phylogenies are a useful
+setting to understand how PATH works. 
+
+```{r, results='asis', echo=FALSE}
+# Process P for visualization.
+P.df <- data.frame(P)
+state_names <- paste("state ", 1:nrow(P))
+rownames(P.df) <- state_names
+# Make table.
+```
+
+#### Simulate
+First, we simulate an idealized phylogeny containing $N = 2^g$ cells
+with the fuction `idealized_phylogeny(g, Q)`. The first argument
+determines the number of cellular generations since all cells shared the same
+ancestor, and the second argument specifies the transition rate matrix. 
+Below, we set `g = 9`, resulting in a phylogeny with $512$ leaves, and use
+the transition rate matrix defined above. 
+
+```{r }
+# Simulate idealized phylogeny (phy0). 
+# Where g is the number of generations back to the root,
+# and Q is the transition rate matrix (Q).
+Q
+
+phy0 <- idealized_phylogeny(g = 9, Q = Q)
+```
+
+Below, we plot the phylogeny and annotate the state of each cell. 
+Some cell states can appear clustered or co-clustered on the phylogeny, 
+but we need to measure phylogenetic correlations to quantify these patterns, 
+and assess their statistical significance.
+
+```{r, echo=FALSE}
+# Format simulated phylogeny to use ggtree for visualization
+# by converting phy0 to phy0_tidy.
+phy0_tidy <- full_join(phy0, 
+                          tibble(label=phy0$tip.label, 
+                                 "state"=as.factor(phy0$states)),
+                          by="label") 
+
+# Use ggtree to plot phylogeny and annotate leaves (terminal nodes) by 
+# categorical cell state.
+ggtree(phy0_tidy, layout = "dendrogram", size=0.25) + 
+  geom_fruit(geom = "geom_tile", aes(fill=state), 
+             col="white", offset = -1.15, 
+             width = 1.5, lwd = 0) +
+  scale_fill_brewer(palette = "Set1", type = "div") +
+  ggtitle("phy0 phylogeny") + labs(fill="Cell state")
+```
+
+#### Measure phylogenetic correlations
+To measure phylogenetic correlations, we use the function `xcor(X, W)`.
+
+`W` is a phylogenetic weight matrix, and below we compute it with the function 
+`one_node.tree.dist()`, which only gives weight to 
+phylogenetic relationships where cells are separated by a node distance of $1$ --
+that is, only sister cell pairs -- on idealized phylogenies, and assigns a
+weight of $0$ to all other phylogenetic relationships. 
+
+Next we use the function `state2mat.sparse()` to transform the cell state vector
+`phy0$states` into the matrix `X` (note this function is only
+intended for formatting "categorical" cell states, *i.e.*, 
+when a cell can only be in one possible state at a time)). 
+
+```{r }
+# Get phylogenetic node distance matrix 
+# retaining only node distances of 1.
+W <- one_node.tree.dist(phy0)
+
+
+# Cell states are stored in the vector phy0$states. The first 10 states are:
+phy0$states[1:10]
+
+# Transform vector of cell state assignments into matrix
+# format for calculating phylogenetic correlations. 
+X <- state2mat.sparse(phy0$states)
+
+# Compute phylogenetic correlations with xcor().
+# Output of xcor() is a list,  including:
+# phylogenetic correlations ("Morans.I"), and
+# leaf-permutation based
+# analytical z scores ("Z.score"), 
+# variance ("Var.I"), expected values ("Expected.I"),
+# and one-sided p-values ("one.sided.pvalue").
+phy0xcor <- xcor(X, W)
+
+# Phylogenetic correlations
+phy0xcor$Morans.I
+
+# Phylogenetic correlation z scores
+phy0xcor$Z.score
+```
+
+
+```{r, echo=FALSE}
+# Process xcor output for plotting and visualization.
+Idf <- reshape2::melt(phy0xcor$Morans.I, 
+                      value.name = "I")
+Zdf <- reshape2::melt(phy0xcor$Z.score, 
+                      value.name = "Z")
+
+df <- full_join(Idf, Zdf, by=c("Var1", "Var2"))
+
+df <- df %>% mutate(Var1 = as.factor(Var1), 
+                      Var2 = as.factor(Var2))
+```
+
+We use phylogenetic auto-correlations as a measure of cell state clustering, 
+or heritability, and the concordant z scores to assess statistical significance. 
+Both auto-correlations ``diag(phy0xcor$Morans.I)`` and 
+z scores ``diag(phy0xcor$Z.scores)`` are plotted below. 
+
+```{r, fig.width=6, echo=FALSE}
+# Phylogenetic auto-correlation bar plot.
+# df is a reformatted data.frame of xcor() output from above.
+
+herit1 <- df %>%
+  filter(Var1 == Var2) %>%
+  ggplot(aes(x=Var1, y=I, fill=Var1)) +
+  geom_bar(stat="identity") +
+  ylim(c(-1,1)) +
+  theme_classic() +
+  scale_fill_brewer(palette = "Set1", type = "div") +
+  labs(fill="Cell state") +
+  ylab("Phylogenetic auto-correlation") + 
+  xlab("Cell state") +
+  ggtitle("Cell state heritability", 
+          subtitle = "auto-correlation")
+
+maxz <- max(abs(df$Z))
+herit2 <- df %>%
+  filter(Var1 == Var2) %>%
+  ggplot(aes(x=Var1, y=Z, fill=Var1)) +
+  geom_bar(stat="identity") +
+  ylim(c(-maxz,maxz)) +
+  theme_classic() +
+  scale_fill_brewer(palette = "Set1", type = "div") +
+  labs(fill="Cell state") +
+  ylab("Phylogenetic auto-correlation\n(z score)") + 
+  xlab("Cell state") +
+  geom_hline(yintercept = qnorm(0.05, lower.tail = F), 
+             col="black", lty=2) +
+  ggtitle("Cell state heritability", 
+          subtitle = "z score")
+
+herit1 + herit2 + plot_layout(guides = "collect")  
+
+```
+
+The phylogenetic relationships between cell states as quantified with
+phylogenetic cross-correlations ``phy0xcor$Morans.I`` can be visualized 
+as a heat map, as below. Note that the diagonal of the heat map represents 
+the same values as depicted in the auto-correlation bar plot above. 
+
+```{r, echo=FALSE}
+# Plot phylogenetic correlation heat map.
+df %>%
+  ggplot(aes(x=Var1, y=Var2, fill=I)) +
+  geom_tile(col="white") +
+  scale_fill_distiller(palette = 5, type = "div",
+                       limits=c(-1,1)) +
+  theme_classic() +
+  scale_y_discrete(limits=rev) +
+  labs(fill="Phylogenetic\ncorrelation") +
+  xlab("Cell state") + ylab("Cell state") +
+  theme(aspect.ratio = 1) 
+
+```
+
+#### Infer cell state dynamics
+Finally, we can use these phylogenetic correlations to infer cell state
+state transition dynamics with the function `PATH.inference()`. This function
+takes a phylogeny (here, `phy0`), the name of the cell state vector 
+(here, `"states"` as cell states are stored at `phy0$states`), and `nstates`,
+the number of possible cell states.
+
+```{r }
+# Infer cell state transition probabilities from phylogenetic
+# correlations and measured branch lengths using PATH.
+Pinf <- PATH.inference(tree = phy0, 
+                              cell_states = "states", 
+                              nstates = nrow(P))
+
+```
+
+First we can see what the inferred transition probabilities are for a length
+of time proportional to the branch length distances separating sister cells, 
+which is $t=2$, here. 
+
+```{r}
+# PATH-inference of P(t=2)
+Pinf$Pt
+```
+
+PATH uses the above transition probability to estimate $P$ 
+for a time-step of $t=1$.
+
+We can compare inferred transitions to the true simulated transitions, for $t=1$.
+
+```{r}
+# PATH-inferred transitions
+Pinf$P
+
+# True transitions 
+P
+```
