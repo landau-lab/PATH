@@ -11,7 +11,7 @@ PATH is an R package for analyzing multi-modal single-cell phylogenies, develope
 maintained by the Landau Lab at the New York Genome Center \& Weill Cornell Medicine.
 
 For more information and background, as well as technical details, see our manuscript
-[Defining ancestry, heritability and plasticity of cellular phenotypes in somatic evolution]().
+[Defining ancestry, heritability and plasticity of cellular phenotypes in somatic evolution](https://www.biorxiv.org/content/10.1101/2022.12.28.522128v1).
  
 ### Installation 
 ```r
