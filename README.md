@@ -29,27 +29,25 @@ the probabilities of transitioning between cell states --
 from phylogenetic correlations. This type of analysis,
 in the context of measuring cell types,
 can be used to map ontogenetic relationships or differentiation hierarchies, or
-in the context of cellular location, to infer metastatic seeding routes. 
+in the context of cellular location, be used to infer metastatic seeding routes. 
+
+Finally, going beyond the analysis of predefined cellular states, 
+we can use PATH to measure the phylogenetic correlations of
+gene transcription, to search for highly heritable or phylogenetically dependent
+gene modules or pathways, in an unbiased fashion.
+
 
 ### Vignettes
 For examples of how to apply PATH, see the vignettes listed below.
 
-In 
-[PATH analysis of idealized phylogenies](https://htmlpreview.github.io/?https://github.com/landau-lab/PATH/blob/main/vignettes/Idealized_phylogenies.html)
-and 
-[PATH analysis of somatic evolution](https://htmlpreview.github.io/?https://github.com/landau-lab/PATH/blob/main/vignettes/Somatic_evolution.html) 
-are
-demonstrations on how to use PATH to measure phylogenetic correlations
-and to infer cell state transition dynamics on simulated phylogenies,
-in two contexts, using *idealized* phylogenies, or phylogenies simulated
-by a *sampled somatic evolutionary process*. 
+* In [PATH analysis of idealized phylogenies](https://htmlpreview.github.io/?https://github.com/landau-lab/PATH/blob/main/vignettes/Idealized_phylogenies.html)
+we demonstate how to use PATH to measure phylogenetic correlations and to infer cell state transition dynamics
+on idealized phylogenies.
+* In [PATH analysis of somatic evolution](https://htmlpreview.github.io/?https://github.com/landau-lab/PATH/blob/main/vignettes/Somatic_evolution.html) 
+we demonstate how to use PATH to measure phylogenetic correlations and to infer cell state transition dynamics
+on phylogenies simulated by a *sampled somatic evolutionary process*. 
 
-Finally, going beyond the analysis of predefined cellular states, 
-we can measure the phylogenetic correlations of
-gene transcription,  
-to search for highly heritable or phylogenetically dependent
-gene modules or pathways, in an unbiased fashion.
-In [PATH analysis of glioblastoma]() is a demonstration
+* In [PATH analysis of glioblastoma]() is a demonstration
 on how to apply PATH to a published single-cell human patient-derived
 glioblastoma phylogeny 
 ([Chaligne R, Gaiti F, Silverbush D, and Schiffman JS *et. al. Nature Genetics*. 2021.](https://doi.org/10.1038/s41588-021-00927-7)), 
