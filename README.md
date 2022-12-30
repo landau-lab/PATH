@@ -35,13 +35,16 @@ For examples of how to apply PATH, see the vignettes listed below.
 
 * [PATH analysis of idealized phylogenies](https://htmlpreview.github.io/?https://github.com/landau-lab/PATH/blob/main/vignettes/Idealized_phylogenies.html)
 demonstates how to use PATH to measure phylogenetic correlations and how to infer cell state transition dynamics
-on *idealized phylogenies*.
+on simulated *idealized phylogenies*. Idealized phylogenies represent a simplified situation useful for
+understanding how PATH works. 
 * [PATH analysis of somatic evolution](https://htmlpreview.github.io/?https://github.com/landau-lab/PATH/blob/main/vignettes/Somatic_evolution.html) 
 demonstates how to use PATH to measure phylogenetic correlations and how to infer cell state transition dynamics
-on phylogenies simulated by a *sampled somatic evolutionary process*. 
+on phylogenies simulated by a *sampled somatic evolutionary process*. These phylogenies should more closely
+resemble those derived from experiment.
 
-* [PATH analysis of cancer]() demonstrates how to apply PATH to a patient-derived
-glioblastoma single-cell phylogeny,
+* [PATH analysis of cancer]() demonstrates how to apply PATH to an experimentally derived single-cell phylogeny
+with matching scRNAseq. Specifically, in this vignette, PATH is applied to a patient-derived
+glioblastoma phylogeny,
 to measure transcriptional cell state heritability versus plasticity, 
 to infer cell state transition dynamics, and
 to discover heritable transcriptional modules in an unbiased fashion. 
