@@ -1,10 +1,12 @@
 # PATH
 
+*Please note that this software is still in development and being updated*  
+
 ### Introduction
 Here we introduce **PATH** -- the **P**hylogenetic **A**nalysis of **T**ranscriptional 
 **H**eritability -- an analytical framework for quantifying cell state heritability
 versus plasticity and inferring cell state transition dynamics, in the context of
-*somatic evolution*, single-cell lineage trees or phylogenies. For more information,
+*somatic evolution*, using single-cell lineage trees or phylogenies. For more information,
 see our [bioRxiv preprint]().
 
 Single-cell phylogenies represent the ancestral
@@ -24,8 +26,7 @@ calculating *phylogenetic correlations*.
 For categorical cellular phenotypes or states, such as cell type, 
 we can further use PATH to infer cell state transition dynamics -- 
 the probabilities of transitioning between cell states -- 
-from the distribution of cell states on a phylogeny,
-by first quantifying their phylogenetic correlations. This type of analysis,
+from phylogenetic correlations. This type of analysis,
 in the context of measuring cell types,
 can be used to map ontogenetic relationships or differentiation hierarchies, or
 in the context of cellular location, to infer metastatic seeding routes. 
