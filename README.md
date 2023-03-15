@@ -46,7 +46,7 @@ demonstates how to use PATH to measure phylogenetic correlations and how to infe
 on phylogenies simulated by a *sampled somatic evolutionary process*. These phylogenies should more closely
 resemble those derived from experiment.
 
-* [PATH analysis of cancer]() demonstrates how to apply PATH to an experimentally derived single-cell phylogeny
+* [PATH analysis of cancer](https://htmlpreview.github.io/?https://github.com/landau-lab/PATH/blob/main/docs/Glioblastoma.html)) demonstrates how to apply PATH to an experimentally derived single-cell phylogeny
 with matching scRNAseq. Specifically, in this vignette, PATH is applied to a patient-derived
 glioblastoma phylogeny,
 to measure transcriptional cell state heritability versus plasticity, 

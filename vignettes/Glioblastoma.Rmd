@@ -1,0 +1,264 @@
+---
+title: "PATH analysis of glioblastoma"
+output: 
+  html_document:
+    fig_height: 3
+    fig_width: 7
+    fig_retina: 2
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.align = "center"
+)
+```
+
+```{r setup, message=FALSE}
+library(PATH)
+library(expm)
+library(ggplot2)
+library(ggtree)
+library(ggtreeExtra)
+library(tidytree)
+library(Matrix)
+library(patchwork)
+library(parallel)
+library(msigdbr)
+library(magrittr)
+library(tidyverse)
+library(fgsea)
+```
+### Introduction
+In this vignette we demonstrate how to use PATH to analyze a human derived 
+glioblastoma (GBM) patient sample. For this sample we load the tumor phylogeny, 
+and per cell matrices of gene expression (from scRNAseq), and module scores for 
+previously defined GBM gene sets.
+
+Specifically, we quantify the heritability of four previously defined GBM gene 
+modules: Neural Progenitor-like (NPC), Oligodendrocyte Progenitor-like (OPC),
+Astrocyte-like (AC), and Mesenchymal-like (MES) expression, by measuring
+phylogenetic auto-correlations. Next, we measure the phylogenetic cross-correlations
+between GBM gene modules to understand how they might be evolutionarily related. 
+
+Afterwards, we classify cells into distinct states or cell types based on their 
+GBM gene module scores, and use PATH to infer the transition probabilities 
+connecting cell types. 
+
+Finally, looking beyond the analysis of previously defined GBM gene modules, 
+we use PATH to measure and then rank the heritability of the most variably 
+expressed genes (in this sample) to search for heritable gene modules in an 
+unbiased manner. 
+
+### Data
+
+This vignette uses three RDS objects stored in this repository:
+
+- `tree115`, the GBM phylogenetic tree from patient MGH115, 
+- `modules115`, GBM gene modules. Rows represent cells, and columns, module scores, and
+- `genes115`, gene expression of the 3,000 most variably expressed genes.
+
+These can be previewed, as directly below.
+
+```{r }
+# GBM patient phylogenetic tree
+tree115
+
+# per-cell GBM gene modules
+modules115 %>% as_tibble()
+
+# per-cell gene expression
+genes115 %>% as_tibble()
+```
+
+### GBM gene module heritability
+
+First we use our framework to study the phylogenetic patterning of the four GBM 
+gene modules (NPC, OPC, AC, and MES).
+
+#### Gene module phylogenetic auto-correlations
+
+To calculate phylogenetic correlations, we first need a phylogenetic weight 
+matrix, which represents the relatedness of each cell in the phylogeny. Here we 
+use a weight matrix that contains the inverse phylogenetic node distances between 
+cells, by passing the GBM phylogeny `tree115` to the PATH function, `inv.tree.dist()`. 
+
+We can then measure the heritability of each GBM gene module, by using the PATH 
+function `xcor()`, inputting the phylogenetic weight matrix calculated above, 
+and our phenotype(s) of interest, here setting `data = modules115`. 
+
+Note that the `xcor()` function expects the class of the `data` argument to be
+a `matrix`, so phenotypes in the `data.frame` or `numeric` (for instance, if 
+studying only one phenotype) classes need to be converted before using `xcor()`,
+with `as.matrix()`.
+
+```{r, fig.width=3}
+# Compute the phylogenetic node distances between cells in order to measure phylogenetic correlations.
+Winv <- inv.tree.dist(tree115, node = TRUE, norm = FALSE)
+
+# Compute phylogenetic correlations between GBM modules. 
+modxcor <- xcor(modules115, Winv)
+
+# Process xcor output for plotting and visualization.
+Idf <- reshape2::melt(modxcor$Morans.I, 
+                      value.name = "I")
+Zdf <- reshape2::melt(modxcor$Z.score, 
+                      value.name = "Z")
+
+df <- full_join(Idf, Zdf, by=c("Var1", "Var2"))
+
+df <- df %>% mutate(Var1 = as.factor(Var1), 
+                      Var2 = as.factor(Var2))
+
+# Phylogenetic auto-correlation bar plot.
+
+maxz <- max(abs(df$Z))
+df %>%
+  filter(Var1 == Var2) %>%
+  ggplot(aes(x=Var1, y=Z, fill=Var1)) +
+  geom_bar(stat="identity") +
+  ylim(c(0,maxz)) +
+  theme_classic() +
+  #scale_fill_brewer(palette = "Set1", type = "div") +
+  scale_fill_manual(values = gbm_state_colors) +
+  labs(fill="Cell state") +
+  ylab("Phylogenetic auto-correlation\n(z score)") + 
+  xlab("Cell state") +
+  geom_hline(yintercept = qnorm(0.05, lower.tail = F), 
+             col="black", lty=2) +
+  ggtitle("Gene module heritability", 
+          subtitle = "z score")
+
+```
+
+#### Gene module cross-correlations
+
+We can further visualize the phylogenetic relationships between GBM gene modules 
+by plotting their pairwise phylogenetic cross-correlations, included in the output
+from `xcor()` used above.
+
+```{r }
+# Plot phylogenetic correlation heat map.
+df %>%
+  ggplot(aes(x=Var1, y=Var2, fill=Z)) +
+  geom_tile(col="white") +
+  scale_fill_distiller(palette = 5, type = "div",
+                       limits=c(-maxz,maxz)) +
+  theme_classic() +
+  scale_y_discrete(limits=rev) +
+  labs(fill="Phylogenetic\ncorrelation\nz score") +
+  xlab("Cell state") + ylab("Cell state") +
+  theme(aspect.ratio = 1) 
+
+```
+
+#### Cell state transition probabilities
+
+Beyond measuring phylogenetic correlations, the PATH framework can be applied to
+infer unobserved cell state transition dynamics. This is achieved by converting
+the phylogenetic correlations of categorical cell states (or cell types) into 
+transition probability estimates.
+
+To use this approach on our GBM phylogeny, we first need to assign cells to 
+distinct or categorical cell states. We might expect that a cell occupying a 
+particular cell state will express the genes associated with that cell state
+more than genes associated with other cell states. Using this perspective, we
+can classify each of the MGH115 cells as either an NPC, OPC, AC, or MES cell
+based on which GBM module is expressed the highest. 
+
+Here, we count how many cells are in each of the four GBM module defined states.
+```{r }
+# Get each cell's maximum GBM module score
+table(colnames(modules115)[max.col(modules115)])
+```
+
+In this sample we observe 5 NPC, 3 OPC, 15 AC, and 15 MES cells. Since both NPC 
+and OPC cells are similar, and represent a more general "stem-like" GBM cell 
+state, we can simplify our analysis by studying 3 cell states, by combing both 
+NPC and OPC cells into the stem-like cell state. 
+
+As such, we classify cells into one of three distinct cell states,
+
+- Stem-like (which includes both progenitor states NPC and OPC),
+- AC-like,
+- MES-like.
+
+```{r}
+# Combine progenitor states into the stem-like state.
+states4 <- max.col(modules115)
+states3 <- ifelse(states4 == 1, 2, states4) - 1
+
+# Add categorical state data to phylogeny
+tree115$states <- states3
+```
+
+We can then use the PATH function `PATH.inference()` to infer transition probabilities
+connecting stem-like, AC-like, and MES-like cell states. 
+
+```{r}
+# Use PATH to infer transition probabilities between stem-like, AC, and MES cells
+Pinf <- PATH.inference(tree115, 
+                       impute_branches = T, 
+                       sample_rate_est = 10^-6)
+
+# Format PATH output
+Ptinf.df <- data.frame(Pinf$Pt)
+rownames(Ptinf.df) <- c("Stem", "AC", "MES")
+```
+
+```{r, results='asis', echo=FALSE}
+# Plot table of state transitions
+knitr::kable(Ptinf.df, digits = 2, row.names = T, col.names = c("Stem", "AC", "MES"),
+             caption =  "PATH inferred transitions $\\hat{P}(t=\\tau)$.") %>%
+  kableExtra::kable_styling(full_width = F)
+```
+
+Interestingly, the inference for this sample, shows that transitions between the
+stem-like cell and MES-like cell states need to pass through the AC-like state,
+which could suggest that the AC-like cell state functions as an intermediary. 
+
+### Discover heritable transcriptional modules
+
+Moving beyond GBM gene modules and the inference of cell state transition 
+dynamics, we can also use PATH to quantify the phylogenetic patterning of 
+individual genes. We can then use these results for further analyses, as for
+example, to discover heritable transcriptional modules in an unbiased fashion.
+
+Below, we use PATH to rank the expression of 3,000 genes observed in our GBM
+sample by their heritabilities (phylogeneticauto-correlation z scores), and
+use the PATH function `xcor_gsea()` (which relies on tools from the R packages
+*msigdbr* and *fgsea*) to search for highly heritable gene modules. 
+
+For this analysis, genes are ranked by the heritability of their expression and
+Gene Set Enrichment Analysis (GSEA) is used to nominate highly heritable modules.
+
+```{r }
+genesets = msigdbr::msigdbr(species = "Homo sapiens", subcategory = "CGP")
+pathwaysH = split(x = genesets$gene_symbol, f = genesets$gs_name)
+pathwaysH <- lapply(pathwaysH, unique)
+pathwaysH <- c(pathwaysH, as.list(neftel.genes))
+
+```
+
+```{r, fig.height=4 }
+
+xcgsea <- xcor_gsea(genes115, Winv, pathwaysH)
+
+ xcgsea %>% as_tibble() %>% 
+   arrange(desc(-padj)) %>% 
+   mutate(rank=rank(padj)) %>%
+   filter(padj < 0.05 & rank <= 15) %>%
+   mutate(pathway=gsub("_", " ", pathway)) %>%
+   ggplot(aes(x=reorder(pathway, -padj, min), y=-log10(padj) )) +
+   geom_point(aes(size=NES)
+   ) + xlab("pathway") + coord_flip() +
+   ggtitle("GSEA") +
+   theme_classic()
+
+```
+
+Results from this analysis reveal some gene sets enriched among heritable genes
+in this sample, including sets associated with GBM and other biological processes.
+
+
