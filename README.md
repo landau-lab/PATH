@@ -35,7 +35,7 @@ PATH's analytical tools can be applied to these types of data to,
 * (iii) identify heritable gene modules or pathways.  
 
 ### Vignettes
-For examples of how to apply PATH, see the vignettes listed below.
+For examples of how to apply PATH, see the vignettes listed below. 
 
 * [PATH analysis of idealized phylogenies](https://htmlpreview.github.io/?https://github.com/landau-lab/PATH/blob/main/docs/Idealized_phylogenies.html)
 demonstates how to use PATH to measure phylogenetic correlations and how to infer cell state transition dynamics
