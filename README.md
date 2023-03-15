@@ -11,7 +11,7 @@ PATH is an R package for analyzing multi-modal single-cell phylogenies, develope
 maintained by the Landau Lab at the New York Genome Center \& Weill Cornell Medicine.
 
 For more information and background, as well as technical details, see our manuscript
-[Defining ancestry, heritability and plasticity of cellular phenotypes in somatic evolution](https://www.biorxiv.org/content/10.1101/2022.12.28.522128v1).
+[Defining ancestry, heritability and plasticity of cellular phenotypes in somatic evolution](https://www.biorxiv.org/content/10.1101/2022.12.28.522128v2).
  
 ### Installation 
 ```r
@@ -46,7 +46,7 @@ demonstates how to use PATH to measure phylogenetic correlations and how to infe
 on phylogenies simulated by a *sampled somatic evolutionary process*. These phylogenies should more closely
 resemble those derived from experiment.
 
-* [PATH analysis of cancer](https://htmlpreview.github.io/?https://github.com/landau-lab/PATH/blob/main/docs/Glioblastoma.html)) demonstrates how to apply PATH to an experimentally derived single-cell phylogeny
+* [PATH analysis of cancer](https://htmlpreview.github.io/?https://github.com/landau-lab/PATH/blob/main/docs/Glioblastoma.html) demonstrates how to apply PATH to an experimentally derived single-cell phylogeny
 with matching scRNAseq. Specifically, in this vignette, PATH is applied to a patient-derived
 glioblastoma phylogeny,
 to measure transcriptional cell state heritability versus plasticity, 
