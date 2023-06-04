@@ -14,7 +14,6 @@ fast_dist.bifur <- function(tree) {
         }
         count <- count + 1
     }
-    d <- t(apply(d, 1, sort))
     m <- Matrix::sparseMatrix(rbind(d[,1], d[,2]), rbind(d[,2], d[,1]), dims=c(Ntips, Ntips))
     diag(m) <- FALSE
     #md <- mean(tree$edge.length[g])*2
