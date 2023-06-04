@@ -15,8 +15,7 @@ fast_dist.bifur <- function(tree) {
         count <- count + 1
     }
     d <- t(apply(d, 1, sort))
-    m <- Matrix::sparseMatrix(d[,1],d[,2], symmetric=TRUE )
-    #m <- Matrix::forceSymmetric(Matrix::sparseMatrix(d[,1], d[,2], dims = c(Ntips, Ntips)))
+    m <- Matrix::sparseMatrix(rbind(d[,1], d[,2]), rbind(d[,2], d[,1]), dims=c(Ntips, Ntips))
     diag(m) <- FALSE
     #md <- mean(tree$edge.length[g])*2
     md <- mean(dl, na.rm=TRUE) * 2

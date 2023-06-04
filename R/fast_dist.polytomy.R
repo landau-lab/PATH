@@ -17,9 +17,8 @@ fast_dist.polytomy <- function(tree) {
     for(i in unique(g2[,1])) {
         d <- rbind(as.matrix(combn3((g2[which(g2[,1]==i),2,drop=FALSE]))), d)
     }
-    d <- t(apply(d, 1, sort))
-    m <- Matrix::sparseMatrix(d[,1],d[,2], symmetric=TRUE )
-    #m <- Matrix::forceSymmetric(Matrix::sparseMatrix(d[,1],d[,2], dims = c(Ntips, Ntips)))
+    #d <- t(apply(d, 1, sort))
+    m <- Matrix::sparseMatrix(rbind(d[,1], d[,2]), rbind(d[,2], d[,1]), dims=c(Ntips, Ntips))
     diag(m) <- FALSE
     md <- mean(tree$edge.length[g])*2
     return(list("W"=m, "mean.edge"=md))
