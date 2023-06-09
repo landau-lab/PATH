@@ -8,7 +8,7 @@
   z <- parM(gene.data, weight.matrix)
   z$gene <- rownames(z)
   
-  z <- z %>% as_tibble() %>% group_by(gene) %>% select(Z) %>% arrange(desc(Z)) %$% set_names(Z, gene)
+  z <- z %>% as_tibble() %>% group_by(gene) %>% dplyr::select(Z) %>% arrange(desc(Z)) %$% set_names(Z, gene)
   
   out <- fgsea(pathways, z, maxSize=maxS, minSize=minS, scoreType="std", nPermSimple=nperm)
   return(out)
