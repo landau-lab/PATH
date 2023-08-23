@@ -51,5 +51,8 @@ with matching scRNAseq. Specifically, in this vignette, PATH is applied to a pat
 glioblastoma phylogeny,
 to measure transcriptional cell state heritability versus plasticity, 
 to infer cell state transition dynamics, and
-to discover heritable transcriptional modules in an unbiased fashion. 
+to discover heritable transcriptional modules in an unbiased fashion.
+
+### Interactive PATH Simulator
+This interactive [PATH Simulator](https://joshseth.shinyapps.io/shinyPATH/) web app can also be used for simple demonstrations. 
 
