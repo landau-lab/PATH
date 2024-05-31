@@ -8,7 +8,7 @@
 #' @param norm Logical. Default TRUE. If true, the phylogenetic weight matrix is first row normalized before it is sum normalized. 
 #' @export
 one_node.tree.dist <- function(tree, norm=TRUE) {
-  w <- fast_dist(tree)$W
+  w <- one_node_depth(tree)$W
   if(norm==TRUE) {
     w <- rowNorm(w)
   }

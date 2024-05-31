@@ -33,6 +33,7 @@ PATH.inference(
 A list containing:\tabular{ll}{
 \code{P} \tab PATH inference of transition probability matrix P at time t=1. \cr
 \code{Pt} \tab PATH inference of P for time proportional to the mean branch length distance at a node depth 1. \cr
+\code{Q} \tab PATH inference of transition rate matrix Q = logm(P).
 }
 }
 \description{

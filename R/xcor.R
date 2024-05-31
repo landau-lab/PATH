@@ -1,15 +1,17 @@
 #' Compute cross-correlations.
 #'
 #' This function computes both auto- and cross-correlations for
-#' arguments: "data", an N by n dimensional matrix, and
-#' "weight.matrix", an N by N dimensional matrix.
+#' arguments: `data`, an \eqn{N \times n} dimensional matrix, and
+#' `weight.matrix`, an \eqn{N \times N} dimensional matrix.
 #' In the context of computing phylogenetic correlations,
-#' N is the number of cells (terminal phylogenetic nodes or leaves),
-#' and n is the number of observations (e.g., RNA counts for n genes).
+#' \eqn{N} is the number of cells (terminal phylogenetic nodes or leaves),
+#' and \eqn{n} is the number of observations (e.g., RNA counts for \eqn{n} genes).
 #'
+#' @param data \eqn{N \times n} matrix of trait/state data, where \eqn{N} is number of cells (phylogeny leaves) and \eqn{n} is number of traits.
+#' @param weight.matrix \eqn{N \times N} phylogenetic weight matrix. 
 #' @examples
-#' # phy is a phylogenetic tree
-#' X <- phy$data
+#' phy <- ran_tree_with_states(matrix(c(-0.1, 0.1, 0.1, -0.1), 2, 2))
+#' X <- catMat(phy$states)
 #' W <- one_node.tree.dist(phy)
 #' xcor(X, W)
 #' @return A list containing:\tabular{ll}{

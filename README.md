@@ -1,4 +1,4 @@
-# PATH: Phylogenetic Analysis of Transcriptional Heritability
+# PATH: Phylogenetic Analysis of Trait Heritability
 
 <p align="center">
   <img src="PATH_logo.png" alt="drawing" width="100"/>
