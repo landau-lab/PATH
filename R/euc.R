@@ -7,16 +7,6 @@ euc <- function(x,y) {
   sqrt(sum((x-y)^2))
 }
 
-#' Euclidead distance with regulaizer
-#' 
-#' @param x Matrix, vector, or scalar. 
-#' @param y Matrix, vector, or scalar with same dimensions as x. 
-#' @param a Matrix of parameters to regularize Euclidean distances for optimization.
-#' @export 
-euc_reg <- function(x, y, a) {
-  euc(x, y) + mean((a[upper.tri(a)|lower.tri(a)])^2)
-}
-
 #' Constrain cell state-specific proliferation rates using total proliferation
 #' 
 #' @param random_values Guess.
