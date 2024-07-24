@@ -4,22 +4,30 @@
 \alias{PATHpro_loss}
 \title{PATHpro loss function for optimization}
 \usage{
-PATHpro_loss(guess, xcors, times, freqs, total_prolif, prolif_rates, cost_func)
+PATHpro_loss(
+  guess,
+  pair_freqs,
+  times,
+  state_freqs,
+  total_prolif,
+  prolif_rates,
+  alpha = 0
+)
 }
 \arguments{
 \item{guess}{Vector of parameter value guesses.}
 
-\item{xcors}{List of cell state pair frequencies from phylogeny.}
+\item{pair_freqs}{List of cell state pair frequencies from phylogeny.}
 
-\item{times}{Vector of times/patristic distances corresponding to xcors.}
+\item{times}{Vector of times/patristic distances corresponding to pair_freqs.}
 
-\item{freqs}{Vector of cell state frequencies.}
+\item{state_freqs}{Vector of cell state frequencies.}
 
 \item{total_prolif}{Total proliferation rate.}
 
 \item{prolif_rates}{Vector of cell state proliferation rates.}
 
-\item{cost_func}{Cost function to use when comparing xcors with those using guessed parameters.}
+\item{alpha}{Regulizer penalty weight to use when comparing pair_freqs with those using guessed parameters.}
 }
 \description{
 PATHpro loss function for optimization

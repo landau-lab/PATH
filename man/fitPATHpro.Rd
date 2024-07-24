@@ -6,12 +6,12 @@
 \usage{
 fitPATHpro(
   initial_parameter_guess,
-  xcor_list,
+  pair_freq_list,
   state_freqs,
   pair_pat_dist = 2,
   total_prolif_rate = NULL,
   cell_prolif_rates = NULL,
-  cf = euc_reg,
+  alph = 0,
   xtol = 1e-15,
   rtol = 1e-15,
   atol = 1e-15
@@ -20,17 +20,17 @@ fitPATHpro(
 \arguments{
 \item{initial_parameter_guess}{Vector of paameter value guesses.}
 
-\item{xcor_list}{List of cell state pair frequencies from phylogeny.}
+\item{pair_freq_list}{List of cell state pair frequencies from phylogeny.}
 
 \item{state_freqs}{Vector of cell state frequencies.}
 
-\item{pair_pat_dist}{Vector of times/patristic distances corresponding to xcor_list.}
+\item{pair_pat_dist}{Vector of times/patristic distances corresponding to pair_freq_list.}
 
 \item{total_prolif_rate}{Total proliferation rate.}
 
 \item{cell_prolif_rates}{Vector of cell state proliferation rates.}
 
-\item{cf}{Cost function to use when comparing xcor_list with those using guessed parameters.}
+\item{alph}{Regulizer penalty weight to use when comparing pair_freq_list with those using guessed parameters.}
 }
 \description{
 Fit PATHpro by optimizing \code{PATHpro_loss()}

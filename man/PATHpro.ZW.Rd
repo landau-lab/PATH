@@ -11,7 +11,7 @@ PATHpro.ZW(
   guess_list = NULL,
   total_prolif_rate_est = NULL,
   cell_prolifs = NULL,
-  cf0 = euc_reg
+  alpha0 = 0
 )
 }
 \arguments{
@@ -25,7 +25,7 @@ PATHpro.ZW(
 
 \item{cell_prolifs}{Vector of cell state specific prolfieration rates.}
 
-\item{cf0}{Cost function.}
+\item{alpha0}{Regulizer penalty weight.}
 }
 \description{
 PATHpro inference using input cell state and weight matrices.

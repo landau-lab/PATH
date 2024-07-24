@@ -11,7 +11,7 @@ PATHpro(
   prolif = NULL,
   total_prolif = NULL,
   guess_list = NULL,
-  cf = euc_reg
+  alpha = NULL
 )
 }
 \arguments{
@@ -27,7 +27,7 @@ PATHpro(
 
 \item{guess_list}{List of initial parameter guess vectors.}
 
-\item{cf}{Cost function.}
+\item{alpha}{Regulaizer penalty weight.}
 }
 \description{
 PATHpro
