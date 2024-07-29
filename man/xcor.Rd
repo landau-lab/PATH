@@ -13,10 +13,8 @@ xcor(data, weight.matrix)
 }
 \value{
 A list containing:\tabular{ll}{
-\code{Morans.I} \tab Bivariate cross-correlations. Diagonal elements are auto-correlations. \cr
-\code{Z.scores} \tab A matrix of analytical z scores for cross-correlations. \cr
-\code{Expected.I} \tab Expected cross-correlations for a permutation. \cr
-\code{Var.I} \tab Cross-correlation variance under permutations. \cr
+\code{phy_cor} \tab Phylogenetic cross-correlations. Diagonal elements are phylogenetic auto-correlations. \cr
+\code{Z.score} \tab A matrix of analytical z scores for cross-correlations. \cr
 \code{one.sided.pvalue} \tab One-sided p-values derived from z scores. \cr
 }
 }
@@ -31,6 +29,6 @@ and \eqn{n} is the number of observations (e.g., RNA counts for \eqn{n} genes).
 \examples{
 phy <- ran_tree_with_states(matrix(c(-0.1, 0.1, 0.1, -0.1), 2, 2))
 X <- catMat(phy$states)
-W <- one_node.tree.dist(phy)
+W <- one_node_tree_dist(phy)
 xcor(X, W)
 }

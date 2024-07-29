@@ -6,6 +6,12 @@
 \usage{
 CorrectP(P)
 }
+\arguments{
+\item{P}{Square matrix.}
+}
+\value{
+Pc Transition probability matrix, derived by correcting elements of \code{P}.
+}
 \description{
 This function normalizes rows of the transition probability matrix P to sum to 1.
 }

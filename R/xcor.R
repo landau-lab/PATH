@@ -12,16 +12,18 @@
 #' @examples
 #' phy <- ran_tree_with_states(matrix(c(-0.1, 0.1, 0.1, -0.1), 2, 2))
 #' X <- catMat(phy$states)
-#' W <- one_node.tree.dist(phy)
+#' W <- one_node_tree_dist(phy)
 #' xcor(X, W)
 #' @return A list containing:\tabular{ll}{
-#'  \code{Morans.I} \tab Bivariate cross-correlations. Diagonal elements are auto-correlations. \cr
-#'  \code{Z.scores} \tab A matrix of analytical z scores for cross-correlations. \cr
-#'  \code{Expected.I} \tab Expected cross-correlations for a permutation. \cr
-#'  \code{Var.I} \tab Cross-correlation variance under permutations. \cr
+#'  \code{phy_cor} \tab Phylogenetic cross-correlations. Diagonal elements are phylogenetic auto-correlations. \cr
+#'  \code{Z.score} \tab A matrix of analytical z scores for cross-correlations. \cr
 #'  \code{one.sided.pvalue} \tab One-sided p-values derived from z scores. \cr
 #' }
 #' @export
+#' @importFrom methods as
+#' @importFrom Matrix t
+#' @importFrom qlcMatrix corSparse
+#' @importFrom stats pnorm
 xcor <- function(data, weight.matrix) {
   # data format: one row per cell and one column per measurement (e.g. one column per gene expression score)
   # The ij'th element of the weight.matrix should reflect how closely related cells i and j are, 
@@ -29,7 +31,7 @@ xcor <- function(data, weight.matrix) {
 
   t <- Matrix::t
 
-  W <- as(weight.matrix, "sparseMatrix")
+  W <- methods::as(weight.matrix, "sparseMatrix")
   n <- nrow(data)
   
   
@@ -60,8 +62,8 @@ xcor <- function(data, weight.matrix) {
   (  ( ( d1^2 )/( d1.2 ) ) * ( 1/((n-1)^2)  )  ))
   
   Z0 <- (I-E.I2)/sqrt(V00)
-  pval <- pnorm(-abs(Z0))*2
+  pval <- stats::pnorm(-abs(Z0))*2
   
-  return(list("Morans.I"=I, "Expected.I"=E.I2,  "Var.I"=V00,"Z.score"=Z0, "one.sided.pvalue"=pval))
+  return(list("phy_cor" = I, "Z.score" = Z0, "one.sided.pvalue" = pval))
   
 }

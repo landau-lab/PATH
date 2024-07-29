@@ -4,8 +4,8 @@
 #' @param label_order (optional) A vector of cell state names in order.
 #' @param n (optional) number of possible cell states. 
 #' @param return_sparse (default=TRUE) returns sparse state matrix.
-catMat0 <- function(state_vector, label_order=NULL, n=NULL,
-                    return_sparse=TRUE) {
+catMat0 <- function(state_vector, label_order = NULL, n = NULL,
+                    return_sparse = TRUE) {
   
   if(is.null(n) & is.numeric(state_vector)==FALSE) {
     n <- max(length(unique(state_vector)), length(unique(label_order)))
@@ -50,11 +50,13 @@ catMat0 <- function(state_vector, label_order=NULL, n=NULL,
 #' @param cell_states A vector of cell states from a phylogeny.
 #' @param num_states (optional) number of possible cell states. 
 #' @param state_order (optional) A vector of cell state names in order.
-#' @param sparse (default=TRUE) returns sparse state matrix.
+#' @param sparse Logical. Default = TRUE. Returns sparse state matrix.
+#' @param unformatted Logical. Default = FALSE. TRUE returns unformmated matrix. 
+#' @return Cell state matrix used for PATH inference, with rows corresponding to cells and columns corresponding to possible states.
 #' @export
 catMat <- function(cell_states, 
-                   num_states=NULL, state_order=NULL,
-                   sparse=TRUE, unformatted=FALSE) {
+                   num_states = NULL, state_order = NULL,
+                   sparse = TRUE, unformatted = FALSE) {
   # Converts a vector of categorical states into a categorical matrix.
   if(unformatted==FALSE) {
     catMat0(state_vector = cell_states, label_order = state_order, n=num_states, return_sparse = sparse)

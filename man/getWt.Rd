@@ -6,6 +6,16 @@
 \usage{
 getWt(W, d, N)
 }
+\arguments{
+\item{W}{data.table of phylogenetic distances.}
+
+\item{d}{edge length}
+
+\item{N}{Size of phylogeny, i.e., number of cells.}
+}
+\value{
+List of phylogenetic weight matrices and vector of corresponding mean pairwise distances.
+}
 \description{
 Get weight matrices for d depth
 }

@@ -19,7 +19,12 @@ catMat(
 
 \item{state_order}{(optional) A vector of cell state names in order.}
 
-\item{sparse}{(default=TRUE) returns sparse state matrix.}
+\item{sparse}{Logical. Default = TRUE. Returns sparse state matrix.}
+
+\item{unformatted}{Logical. Default = FALSE. TRUE returns unformmated matrix.}
+}
+\value{
+Cell state matrix used for PATH inference, with rows corresponding to cells and columns corresponding to possible states.
 }
 \description{
 Convert categorical cell state vector into categorical matrix.

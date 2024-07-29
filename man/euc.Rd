@@ -6,6 +6,12 @@
 \usage{
 euc(x, y)
 }
+\arguments{
+\item{x, y}{Matrices}
+}
+\value{
+Euclidean distance between \code{x} and \code{y}.
+}
 \description{
 Computed Euclidean distance between x and y.
 }

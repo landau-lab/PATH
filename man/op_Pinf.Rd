@@ -13,6 +13,9 @@ op_Pinf(n, f, p)
 
 \item{p}{Mean patristic distances between cell pairs.}
 }
+\value{
+PATH inference.
+}
 \description{
 Infer transition probability matrix using optimization.
 }

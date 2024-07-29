@@ -10,7 +10,8 @@ xcor_gsea(
   pathways,
   maxS = Inf,
   minS = 5,
-  nperm = 10000
+  nperm = 10000,
+  ncores = 2
 )
 }
 \arguments{
@@ -19,6 +20,17 @@ xcor_gsea(
 \item{weight.matrix}{A normalized phylogenetic weight matrix.}
 
 \item{pathways}{Pathways to test for enrichment.}
+
+\item{maxS}{Max pathway size.}
+
+\item{minS}{Min pathway size.}
+
+\item{nperm}{Number of permutations.}
+
+\item{ncores}{Number of cores to use.}
+}
+\value{
+GSEA results using \code{fgsea::fgsea}.
 }
 \description{
 Gene Set Enrichment Analysis (GSEA) of genes ranked by phylogenetic auto-correlation.

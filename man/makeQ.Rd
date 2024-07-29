@@ -11,6 +11,9 @@ makeQ(parameters, dimensions)
 
 \item{dimensions}{Dimension of square output matrix.}
 }
+\value{
+Transition rate matrix.
+}
 \description{
 Make Q matrix from vector of parameters
 }

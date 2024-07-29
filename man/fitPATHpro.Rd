@@ -31,6 +31,16 @@ fitPATHpro(
 \item{cell_prolif_rates}{Vector of cell state proliferation rates.}
 
 \item{alph}{Regulizer penalty weight to use when comparing pair_freq_list with those using guessed parameters.}
+
+\item{xtol, rtol, atol}{Tolerances used for optimization using \code{nlminb()}.}
+}
+\value{
+A list containing:\tabular{ll}{
+\code{out} \tab Minimal sum of Euclidean distances and regulizer penalty for input and inference-based state pair frequencies.  \cr
+\code{Q} \tab Inferred transition rate matrix. \cr
+\code{P} \tab Inferred transition probability matrix. \cr
+\code{gamma} \tab Inferred cell state specific proliferation rates (if not provided).
+}
 }
 \description{
 Fit PATHpro by optimizing \code{PATHpro_loss()}

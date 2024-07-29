@@ -29,6 +29,22 @@ PATHpro_loss(
 
 \item{alpha}{Regulizer penalty weight to use when comparing pair_freqs with those using guessed parameters.}
 }
+\value{
+out Sum of Euclidean distances between guessed and input state pair frequencies plus regulizer penalty.
+
+P Transition probability matrix from guessed parameters.
+
+Q Transition rate matrix from guessed parameters.
+
+gamma Proliferation rates from guessed parameters or prolif_rates if not null.
+
+A list containing:\tabular{ll}{
+\code{out} \tab Sum of Euclidean distances between guessed and input state pair frequencies plus regulizer penalty.  \cr
+\code{Q} \tab Transition rate matrix from guessed parameters. \cr
+\code{P} \tab Transition probability matrix from guessed parameters. \cr
+\code{gamma} \tab Proliferation rates from guessed parameters or prolif_rates if not null.
+}
+}
 \description{
 PATHpro loss function for optimization
 }

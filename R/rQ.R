@@ -9,7 +9,7 @@
 rQ <- function(n, max.r=1) {
     mat <- matrix(NA, n,n) 
     for(i in 1:n) {
-        y <- runif(n-1, 0, max.r)
+        y <- stats::runif(n-1, 0, max.r)
         mat[i,-i] <- y
         mat[i,i] <- -sum(y)
     }
