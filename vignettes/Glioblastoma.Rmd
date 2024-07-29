@@ -5,6 +5,10 @@ output:
     fig_height: 3
     fig_width: 7
     fig_retina: 2
+vignette: >
+  %\VignetteIndexEntry{glioblastoma}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
 ---
 
 ```{r, include = FALSE}
@@ -29,6 +33,7 @@ library(msigdbr)
 library(magrittr)
 library(tidyverse)
 library(fgsea)
+
 ```
 ### Introduction
 In this vignette we demonstrate how to use PATH to analyze a human derived 
@@ -82,7 +87,7 @@ gene modules (NPC, OPC, AC, and MES).
 To calculate phylogenetic correlations, we first need a phylogenetic weight 
 matrix, which represents the relatedness of each cell in the phylogeny. Here we 
 use a weight matrix that contains the inverse phylogenetic node distances between 
-cells, by passing the GBM phylogeny `tree115` to the PATH function, `inv.tree.dist()`. 
+cells, by passing the GBM phylogeny `tree115` to the PATH function, `inv_tree_dist()`. 
 
 We can then measure the heritability of each GBM gene module, by using the PATH 
 function `xcor()`, inputting the phylogenetic weight matrix calculated above, 
@@ -95,13 +100,13 @@ with `as.matrix()`.
 
 ```{r, fig.width=3}
 # Compute the phylogenetic node distances between cells in order to measure phylogenetic correlations.
-Winv <- inv.tree.dist(tree115, node = TRUE, norm = FALSE)
+Winv <- inv_tree_dist(tree115, node = TRUE, norm = FALSE)
 
 # Compute phylogenetic correlations between GBM modules. 
 modxcor <- xcor(modules115, Winv)
 
 # Process xcor output for plotting and visualization.
-Idf <- reshape2::melt(modxcor$Morans.I, 
+Idf <- reshape2::melt(modxcor$phy_cor, 
                       value.name = "I")
 Zdf <- reshape2::melt(modxcor$Z.score, 
                       value.name = "Z")
@@ -193,14 +198,12 @@ states3 <- ifelse(states4 == 1, 2, states4) - 1
 tree115$states <- states3
 ```
 
-We can then use the PATH function `PATH.inference()` to infer transition probabilities
+We can then use the PATH function `PATH_inf()` to infer transition probabilities
 connecting stem-like, AC-like, and MES-like cell states. 
 
 ```{r}
 # Use PATH to infer transition probabilities between stem-like, AC, and MES cells
-Pinf <- PATH.inference(tree115, 
-                       impute_branches = T, 
-                       sample_rate_est = 10^-6)
+Pinf <- PATH_inf(tree115, impute_branches = T, sample_rate_est = 10^-6)
 
 # Format PATH output
 Ptinf.df <- data.frame(Pinf$Pt)
@@ -243,7 +246,7 @@ pathwaysH <- c(pathwaysH, as.list(neftel.genes))
 
 ```{r, fig.height=4 }
 
-xcgsea <- xcor_gsea(genes115, Winv, pathwaysH)
+xcgsea <- xcor_gsea(genes115, Winv, pathwaysH, ncores = 1)
 
  xcgsea %>% as_tibble() %>% 
    arrange(desc(-padj)) %>% 

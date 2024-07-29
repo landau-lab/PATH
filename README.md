@@ -20,7 +20,7 @@ devtools::install_github("landau-lab/PATH")
 ```
 
 ### Introduction
-**PATH** -- the **P**hylogenetic **A**nalysis of **T**rait 
+**PATH** -- **P**hylogenetic **A**nalysis of **T**rait 
 **H**eritability -- is an analytical framework for quantifying cell state heritability
 versus plasticity and inferring cell state transition dynamics, in the context of
 *somatic evolution*, by using phenotypically annotated single-cell lineage trees or phylogenies. 
@@ -37,16 +37,16 @@ PATH's analytical tools can be applied to these types of data to,
 ### Vignettes
 For examples of how to apply PATH, see the vignettes listed below. 
 
-* [PATH analysis of idealized phylogenies](https://htmlpreview.github.io/?https://github.com/landau-lab/PATH/blob/main/docs/Idealized_phylogenies.html)
+* [PATH analysis of idealized phylogenies](https://htmlpreview.github.io/?https://github.com/landau-lab/PATH/blob/main/doc/Idealized_phylogenies.html)
 demonstates how to use PATH to measure phylogenetic correlations and how to infer cell state transition dynamics
 on simulated *idealized phylogenies*. Idealized phylogenies represent a simplified situation useful for
 understanding how PATH works. 
-* [PATH analysis of somatic evolution](https://htmlpreview.github.io/?https://github.com/landau-lab/PATH/blob/main/docs/Somatic_evolution.html) 
+* [PATH analysis of somatic evolution](https://htmlpreview.github.io/?https://github.com/landau-lab/PATH/blob/main/doc/Somatic_evolution.html) 
 demonstates how to use PATH to measure phylogenetic correlations and how to infer cell state transition dynamics
 on phylogenies simulated by a *sampled somatic evolutionary process*. These phylogenies should more closely
 resemble those derived from experiment.
 
-* [PATH analysis of cancer](https://htmlpreview.github.io/?https://github.com/landau-lab/PATH/blob/main/docs/Glioblastoma.html) demonstrates how to apply PATH to an experimentally derived single-cell phylogeny
+* [PATH analysis of cancer](https://htmlpreview.github.io/?https://github.com/landau-lab/PATH/blob/main/doc/Glioblastoma.html) demonstrates how to apply PATH to an experimentally derived single-cell phylogeny
 with matching scRNAseq. Specifically, in this vignette, PATH is applied to a patient-derived
 glioblastoma phylogeny,
 to measure transcriptional cell state heritability versus plasticity, 

@@ -5,6 +5,10 @@ output:
     fig_height: 3
     fig_width: 7
     fig_retina: 2
+vignette: >
+  %\VignetteIndexEntry{somatic}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
 ---
 
 ```{r, include = FALSE}
@@ -48,7 +52,7 @@ somatic evolution, as cell birth and death occur stochastically, and the
 phylogeny represents a sample of the total somatic population. 
 
 Here, we first randomly generate
-the transition rate matrix $Q$ using the PATH function `rQ()`,
+the transition rate matrix $\mathbf{Q}$ using the PATH function `rQ()`,
 by specifying the number of cell states $n$ with the function's first argument. 
 Here we use this function to randomly generate a $3$-dimensional 
 transition rate matrix and use `expm` to get the transition probability matrix. 
@@ -95,17 +99,17 @@ As was done [here](./Idealized_phylogenies.html),
 we compute phylogenetic correlations
 using `xcor()`, after
 first computing a normalized phylogenetic weight matrix with
-`one_node.tree.dist()`, and by reformatting the cell state vector
-into a matrix with `state2mat.sparse()`.
+`one_node_tree_dist()`, and by reformatting the cell state vector
+into a matrix with `catMat()`.
 
 ```{r }
 # Get phylogenetic node distance matrix 
 # retaining only node distances of 1.
-W <- one_node.tree.dist(phy1)
+W <- one_node_tree_dist(phy1)
 
 # Transform vector of cell state assignments into matrix
 # format for calculating phylogenetic correlations. 
-X <- state2mat.sparse(phy1$states)
+X <- catMat(phy1$states)
 
 # Compute phylogenetic correlations with xcor().
 # Output of xcor() is a list,  including:
@@ -119,7 +123,7 @@ phy1xcor <- xcor(X, W)
 
 ```{r, echo=FALSE}
 # Process xcor output for plotting and visualization.
-Idf <- reshape2::melt(phy1xcor$Morans.I, 
+Idf <- reshape2::melt(phy1xcor$phy_cor, 
                       value.name = "I")
 Zdf <- reshape2::melt(phy1xcor$Z.score, 
                       value.name = "Z")
@@ -132,7 +136,7 @@ df <- df %>% mutate(Var1 = as.factor(Var1),
 
 We use phylogenetic auto-correlations as a measure of cell state clustering, 
 or heritability, and the concordant z scores to assess statistical significance. 
-Both auto-correlations ``diag(phy0xcor$Morans.I)`` and 
+Both auto-correlations ``diag(phy0xcor$phy_cor)`` and 
 z scores ``diag(phy0xcor$Z.scores)`` are plotted below. 
 
 ```{r, fig.width=6, echo=FALSE}
@@ -172,7 +176,7 @@ herit1 + herit2 + plot_layout(guides = "collect")
 ```
 
 The phylogenetic relationships between cell states as quantified with
-phylogenetic cross-correlations ``phy0xcor$Morans.I`` can be visualized 
+phylogenetic cross-correlations ``phy0xcor$phy_cor`` can be visualized 
 as a heat map, as below. Note that the diagonal of the heat map represents 
 the same values as depicted in the auto-correlation bar plot above. 
 
@@ -193,7 +197,7 @@ df %>%
 
 #### Infer cell state dynamics
 Finally, we can use these phylogenetic correlations to infer cell state
-state transition dynamics with the function `PATH.inference()`. This function
+state transition dynamics with the function `PATH_inf()`. This function
 takes a phylogeny (here, `phy0`), the name of the cell state vector 
 (here, `"states"` as cell states are stored at `phy0$states`), and `nstates`,
 the number of possible cell states.
@@ -207,19 +211,14 @@ if we suspect that measured branch lengths are inaccurate or if missing.
 ```{r }
 # Infer cell state transition probabilities from phylogenetic
 # correlations and measured branch lengths using PATH.
-Pinf <- PATH.inference(tree = phy1, 
-                              cell_states = "states", 
-                              nstates = nrow(P))
+Pinf <- PATH_inf(tree = phy1, cell_states = "states", nstates = nrow(P))
 
 # Infer cell state transition probabilities from phylogenetic
 # correlations and imputed branch lengths using PATH.
 # Note that our sampling rate estimate (sample_rate_est) of 10^-2 
 # is incorrect, as the simulated (true) sampling rate is 10^-3. 
-Pinf.impute <- PATH.inference(tree = phy1, 
-                                     cell_states = "states", 
-                                     nstates = nrow(P), 
-                                     impute_branches = TRUE, 
-                                     sample_rate_est = 10^-2)
+Pinf.impute <- PATH_inf(tree = phy1, cell_states = "states", nstates = nrow(P),
+                         impute_branches = TRUE, sample_rate_est = 10^-2)
 
 ```
 
@@ -232,7 +231,7 @@ node apart.
 Pinf$Pt
 ```
 
-PATH uses the above transition probability to estimate $P$ 
+PATH uses the above transition probability to estimate $\mathbf{P}$ 
 for a time-step of $t=1$.
 
 We can compare inferred transitions to the true simulated transitions, for $t=1$.
