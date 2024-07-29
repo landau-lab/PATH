@@ -1,7 +1,9 @@
 #' Euclidean distance
 #' 
 #' Computed Euclidean distance between x and y. 
-#' 
+#'
+#' @param x,y Matrices
+#' @return Euclidean distance between \code{x} and \code{y}.
 #' @export
 euc <- function(x,y) {
   sqrt(sum((x-y)^2))
@@ -20,6 +22,7 @@ constrain_prolif <- function(random_values, total_prolif, state_freqs) {
 #' 
 #' @param parameters Vector of parameters. 
 #' @param dimensions Dimension of square output matrix.
+#' @return Transition rate matrix. 
 makeQ <- function(parameters, dimensions) {
   parameters <- abs(parameters)
   mat <- matrix(NA, dimensions, dimensions)
@@ -34,9 +37,13 @@ makeQ <- function(parameters, dimensions) {
 
 #' Get weight matrices for d depth
 #'
+#' @param W data.table of phylogenetic distances.
+#' @param d edge length
+#' @param N Size of phylogeny, i.e., number of cells.
+#' @return List of phylogenetic weight matrices and vector of corresponding mean pairwise distances. 
 #' @import data.table
+#' @importFrom Matrix sparseMatrix
 getWt <- function(W, d, N) {
-  #df <- W[edge == 2*d]
   df <- with(W, W[edge == 2 * d])
   wd <- Matrix::sparseMatrix(df$Var1, df$Var2, dims=c(N, N))
   td <- mean(df$pat, na.rm = T)

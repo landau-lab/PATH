@@ -2,7 +2,11 @@
 #'
 #' @param n number of cell states
 #' @param f State pair frequencies from phylogeny. 
-#' @param p Mean patristic distances between cell pairs. 
+#' @param p Mean patristic distances between cell pairs.
+#' @return PATH inference.
+#' @importFrom expm expm
+#' @importFrom stats nlminb
+#'
 op_Pinf <- function(n, f, p) {
   loss_func <- function(pars, dims, freq, pat_dist) {
     Qguess <- makeQ(pars, dims)
@@ -12,7 +16,7 @@ op_Pinf <- function(n, f, p) {
     out <- euc(freq, X)
     return(list("out"=out, "pars"=pars))
   }
-  op_search <- nlminb(runif(n^2, 0, 1), 
+  op_search <- stats::nlminb(stats::runif(n^2, 0, 1), 
                       function(guess_pars) loss_func(pars=guess_pars, 
                                                      dims=n,
                                                      freq=f, pat_dist=p)$out, 
@@ -23,15 +27,16 @@ op_Pinf <- function(n, f, p) {
 
 #' PATH inference for given patristic distances, cell state, and weight matrices. 
 #'
-#' @param Z Cell state matrix. 
+#' @param X Cell state matrix. 
 #' @param W Phylogenetic weight matrix for specific depth. 
 #' @param mspd Mean patristic distances between cells. 
-P_inf.zw <- function(Z, W, mspd) {
+#' @importFrom expm expm logm
+P_inf.XW <- function(X, W, mspd) {
  
   t <- Matrix::t
   W <- rowNorm(W)
   W <- W/sum(W)
-  Freq <- as.matrix(t(Z)%*%W%*%Z)
+  Freq <- as.matrix(t(X)%*%W%*%X)
   u <- rowSums(Freq)
   
   Pt <- diag(1/u)%*%Freq
@@ -50,11 +55,11 @@ P_inf.zw <- function(Z, W, mspd) {
 #' @param mspd Mean patristic distances between cells represented in weight_matrix. 
 P_inf <- function(state_vector, weight_matrix, mspd) {
   
-  Z <- catMat(state_vector)
+  X <- catMat(state_vector)
   W <- rowNorm(weight_matrix)
   W <- W/sum(W)
   
-  P_inf.zw(Z, W, mspd)
+  P_inf.XW(X, W, mspd)
 } 
 
 #' Infer cell state transition probabilities from a phylogeny.
@@ -67,7 +72,7 @@ P_inf <- function(state_vector, weight_matrix, mspd) {
 #' @param impute_branches Logical. Default FALSE. Use and impute phylogenetic branch lengths.
 #' @param sample_rate_est Default NULL. Used for branch length imputation if impute_branches=TRUE.
 #' @param birth Default 1. Used if impute_branches=TRUE.
-#' @param deah Default 0. Used if impute_branches=TRUE.
+#' @param death Default 0. Used if impute_branches=TRUE.
 #' @return A list containing:\tabular{ll}{
 #' \code{P} \tab PATH inference of transition probability matrix P at time t=1. \cr
 #' \code{Pt} \tab PATH inference of P for time proportional to the mean branch length distance at a node depth 1. \cr
@@ -75,7 +80,7 @@ P_inf <- function(state_vector, weight_matrix, mspd) {
 #' }
 #' @export
 
-PATH.inference <- function(tree, cell_states = "states", 
+PATH_inf <- function(tree, cell_states = "states", 
                       nstates = NULL, impute_branches = FALSE, sample_rate_est = NULL, 
                       birth = 1, death = 0) {
   w <- one_node_depth(tree)

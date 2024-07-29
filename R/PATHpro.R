@@ -6,7 +6,18 @@
 #' @param state_freqs Vector of cell state frequencies.
 #' @param total_prolif Total proliferation rate.
 #' @param prolif_rates Vector of cell state proliferation rates. 
-#' @param alpha Regulizer penalty weight to use when comparing pair_freqs with those using guessed parameters.  
+#' @param alpha Regulizer penalty weight to use when comparing pair_freqs with those using guessed parameters. 
+#' @return out Sum of Euclidean distances between guessed and input state pair frequencies plus regulizer penalty. 
+#' @return P Transition probability matrix from guessed parameters. 
+#' @return Q Transition rate matrix from guessed parameters. 
+#' @return gamma Proliferation rates from guessed parameters or prolif_rates if not null.
+#' @return A list containing:\tabular{ll}{
+#' \code{out} \tab Sum of Euclidean distances between guessed and input state pair frequencies plus regulizer penalty.  \cr
+#' \code{Q} \tab Transition rate matrix from guessed parameters. \cr
+#' \code{P} \tab Transition probability matrix from guessed parameters. \cr
+#' \code{gamma} \tab Proliferation rates from guessed parameters or prolif_rates if not null.
+#' }
+#' @importFrom expm expm
 
 PATHpro_loss <- function(guess, pair_freqs, times, state_freqs, total_prolif, prolif_rates, alpha = 0) {
   n <- length(state_freqs)
@@ -35,7 +46,7 @@ PATHpro_loss <- function(guess, pair_freqs, times, state_freqs, total_prolif, pr
   }
   out <- out + (alpha * sum((Q[upper.tri(Q)|lower.tri(Q)])^2))
   P <- expm::expm(Q)
-  return(list("out"=out, "P"=P, "Q"=Q, "gamma"=r))
+  return(list("out" = out, "Q" = Q, "P" = P, "gamma" = r))
 }
 
 
@@ -47,7 +58,16 @@ PATHpro_loss <- function(guess, pair_freqs, times, state_freqs, total_prolif, pr
 #' @param pair_pat_dist Vector of times/patristic distances corresponding to pair_freq_list.
 #' @param total_prolif_rate Total proliferation rate. 
 #' @param cell_prolif_rates Vector of cell state proliferation rates. 
-#' @param alph Regulizer penalty weight to use when comparing pair_freq_list with those using guessed parameters. 
+#' @param alph Regulizer penalty weight to use when comparing pair_freq_list with those using guessed parameters.
+#' @param xtol,rtol,atol Tolerances used for optimization using \code{nlminb()}. 
+#' @return A list containing:\tabular{ll}{
+#' \code{out} \tab Minimal sum of Euclidean distances and regulizer penalty for input and inference-based state pair frequencies.  \cr
+#' \code{Q} \tab Inferred transition rate matrix. \cr
+#' \code{P} \tab Inferred transition probability matrix. \cr
+#' \code{gamma} \tab Inferred cell state specific proliferation rates (if not provided).
+#' }
+#' @importFrom stats nlminb
+
 fitPATHpro <- function(initial_parameter_guess, pair_freq_list, state_freqs, 
                        pair_pat_dist = 2, total_prolif_rate = NULL, 
                        cell_prolif_rates = NULL, alph = 0,
@@ -75,32 +95,43 @@ fitPATHpro <- function(initial_parameter_guess, pair_freq_list, state_freqs,
 
 #' PATHpro inference using input cell state and weight matrices. 
 #'
-#' @param z Cell state matrix. 
-#' @param w Phylogenetic weight matrix. 
-#' @param guess_list Vector of initial parameter guesses.
-#' @param total_prolif_rate_est Estimate of total proliferation rate. 
-#' @param cell_prolifs Vector of cell state specific prolfieration rates. 
+#' @param X Cell state matrix. 
+#' @param W Phylogenetic weight matrix, or list of weight matrices.
+#' @param t Mean pairwise patristic distances corresponding to \code{W}.
+#' @param guess_list List of initial parameter guesses (optional).
+#' @param total_prolif_rate_est Estimate of total proliferation rate (optional). 
+#' @param cell_prolifs Vector of cell state-specific prolfieration rates, if known (optional). 
 #' @param alpha0 Regulizer penalty weight. 
+#' @return A list containing:\tabular{ll}{
+#' \code{out} \tab Minimal sum of Euclidean distances and regulizer penalty for input and inference-based state pair frequencies.  \cr
+#' \code{Q} \tab Inferred transition rate matrix, \eqn{\mathbf{Q}}. \cr
+#' \code{P} \tab Inferred transition probability matrix, \eqn{\mathbf{P} = e^{\mathbf{Q}}}. \cr
+#' \code{gamma} \tab Inferred cell state-specific proliferation rates (if not provided to \code{cell_prolifs}), \eqn{\mathbf{\gamma}}.
+#' }
 #' @export
-PATHpro.ZW <- function(z, w, t, guess_list = NULL, total_prolif_rate_est = NULL, 
+#' @details \eqn{\sum_{1}^{\text{depth}} \lVert \mathbb{P}^\top \mathbf{A} \mathbb{P} - \mathbf{X}^\top \overline{\mathbf{W}} \mathbf{X} \rVert + \alpha \sum_{i \neq j} Q_{ij}^2}
+#'
+#' @importFrom Matrix colMeans
+#' @importFrom stats runif
+PATHpro.XW <- function(X, W, t, guess_list = NULL, total_prolif_rate_est = NULL, 
                        cell_prolifs = NULL, alpha0 = 0) {
-  if(!is.list(w) & length(t) == 1) {
-    w <- list(w)
+  if(!is.list(W) & length(t) == 1) {
+    W <- list(W)
   }
   Freqs <- list()
-  for(i in 1:length(w)) {
-    w[[i]] <- rowNorm(w[[i]])
-    w[[i]] <- w[[i]]/sum(w[[i]])
-    Freqs[[i]] <- as.matrix(Matrix::t(z)%*%w[[i]]%*%z)
+  for(i in 1:length(W)) {
+    W[[i]] <- rowNorm(W[[i]])
+    W[[i]] <- W[[i]]/sum(W[[i]])
+    Freqs[[i]] <- as.matrix(Matrix::t(X)%*%W[[i]]%*%X)
   }
   if(is.null(guess_list)) {
-    n <- ncol(z)
-    guess_list <- list(runif(n^2, 0, 0.1))
+    n <- ncol(X)
+    guess_list <- list(stats::runif(n^2, 0, 0.1))
   }
   infs <- list()
   for(i in 1:length(guess_list)) {
     infs[[i]] <- fitPATHpro(initial_parameter_guess = guess_list[[i]],
-                            pair_freq_list = Freqs, state_freqs = Matrix::colMeans(z), 
+                            pair_freq_list = Freqs, state_freqs = Matrix::colMeans(X), 
                             pair_pat_dist = t, 
                             total_prolif_rate = total_prolif_rate_est, 
                             cell_prolif_rates = cell_prolifs, 
@@ -108,26 +139,40 @@ PATHpro.ZW <- function(z, w, t, guess_list = NULL, total_prolif_rate_est = NULL,
   }
   mg <- which.min(sapply(infs, '[[', "out"))
   inf0 <- infs[[mg]]
-  inf0$guess <- mg
+  #inf0$guess <- mg
   return(inf0)
 }
 
 
 #' PATHpro
-#' 
+#'
+#' PATHpro (PATH proliferation) infers cell state transition and proliferation rates from phylogenetic correlations.
+#'
 #' @param tree Phylogeny.
-#' @param z Cell state matrix. 
+#' @param cell_states A vector of cell states. 
 #' @param depth Max node depth to use for computing phylogenetic correlations. 
-#' @param prolif Vector of cell state proliferation rates. 
-#' @param total_prolif Total proliferation rate. 
-#' @param guess_list List of initial parameter guess vectors. 
-#' @param alpha Regulaizer penalty weight. 
+#' @param prolif Vector of cell state-specific proliferation rates, if known (optional). 
+#' @param total_prolif Total proliferation rate, if known (optional). 
+#' @param guess_list List of initial parameter guess vectors (optional). 
+#' @param alpha Regulizer penalty weight.
+#' @param nstates Number of possible cell states (optional).
+#' @param cell_state_order Cell state ordering (optional).
+#' @return A list containing:\tabular{ll}{
+#' \code{out} \tab Parameter fit; the sum of Euclidean distances between input and inference-based state pair frequencies, plus regulizer penalty.  \cr
+#' \code{Q} \tab Inferred transition rate matrix, \eqn{\mathbf{Q}}. \cr
+#' \code{P} \tab Inferred transition probability matrix, \eqn{\mathbf{P}(t=1) = e^{\mathbf{Q}t}}. \eqn{P_{ij}} is the probability a cell in state \eqn{i} transitions to state \eqn{j} after \eqn{t=1} time, where \eqn{i} is the row, \eqn{j} is the column number, and the units of \eqn{t} are determined by the branch lengths of \code{tree}. \cr
+#' \code{gamma} \tab Inferred cell state-specific proliferation rates (if not provided to \code{prolif}), \eqn{\mathbf{\gamma}}. If \code{total_prolif} is not provided, \code{gamma} is not scaled and represents the differences in state-specific proliferation rates, with the lowest rate set to 0.
+#' }
 #' @export
-PATHpro <- function(tree, z, depth = 1, prolif = NULL, total_prolif = NULL,
-                    guess_list = NULL, alpha = NULL) {
-	N <- nrow(z)
+#' @importFrom castor get_all_pairwise_distances
+#' @importFrom data.table data.table
+#'
+PATHpro <- function(tree, cell_states, depth = 1, prolif = NULL, total_prolif = NULL,
+                    guess_list = NULL, alpha = NULL, nstates = NULL, cell_state_order = NULL) {
+	X <- catMat(cell_states, num_states = nstates, state_order = cell_state_order)
+	N <- nrow(X)
   	if(is.null(alpha)) {
-		n <- ncol(z)
+		n <- ncol(X)
   		alpha <- depth/(n^2 - n)
 	}
 
@@ -146,7 +191,7 @@ PATHpro <- function(tree, z, depth = 1, prolif = NULL, total_prolif = NULL,
       		wl <- list(W$W)
       		t <- W$mean.pat
 	}
-	inf <- PATHpro.ZW(z, wl, t, cell_prolifs = prolif, 
+	inf <- PATHpro.XW(X, wl, t, cell_prolifs = prolif, 
 			  total_prolif_rate_est = total_prolif, 
                     	  guess_list = guess_list, 
                      	  alpha0 = alpha)
