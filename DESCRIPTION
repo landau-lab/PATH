@@ -21,4 +21,10 @@ Imports:
     data.table,
     Matrix, 
     expm, 
-    stats
+    stats,
+    castor,
+    methods,
+    qlcMatrix,
+    phytools,
+    fgsea,
+    parallel 
