@@ -1,11 +1,10 @@
 # PATH: Phylogenetic Analysis of Trait Heritability
 
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.13125661.svg)](https://doi.org/10.5281/zenodo.13125661)
+
 <p align="center">
   <img src="PATH_logo.png" alt="drawing" width="100"/>
 </p>
-
-*Please note that this software is not ready for general use
-as it is still in development and being updated.*  
 
 PATH is an R package for analyzing multi-modal single-cell phylogenies, developed and
 maintained by the Landau Lab at the New York Genome Center \& Weill Cornell Medicine.
