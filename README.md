@@ -21,7 +21,7 @@ devtools::install_github("landau-lab/PATH")
 ### Introduction
 **PATH** -- **P**hylogenetic **A**nalysis of **T**rait 
 **H**eritability -- is an analytical framework for quantifying cell state heritability
-versus plasticity and inferring cell state transition dynamics, in the context of
+versus plasticity and inferring cell state transition and proliferation dynamics, in the context of
 *somatic evolution*, by using phenotypically annotated single-cell lineage trees or phylogenies. 
 
 Single-cell phylogenies represent the ancestral
