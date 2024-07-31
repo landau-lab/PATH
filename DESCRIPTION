@@ -1,10 +1,10 @@
 Package: PATH
 Title: Phylogenetic Analysis of Trait Heritability
-Version: 0.0.0.2
+Version: 1.0
 Authors@R: 
     person("Josh", "Schiffman", , "jschiffman@nygenome.org", role = c("aut", "cre"))
 Description: Measures phylogenetic correlations and infers cell state transition probabilities and proliferation rates from single-cell phylogenies.
-License: GPL-3
+License: MIT
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.2.3
