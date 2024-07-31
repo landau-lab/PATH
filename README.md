@@ -1,6 +1,7 @@
 # PATH: Phylogenetic Analysis of Trait Heritability
 
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.13125661.svg)](https://doi.org/10.5281/zenodo.13125661)
+[![DOI](https://zenodo.org/badge/583109289.svg)](https://zenodo.org/doi/10.5281/zenodo.13144051)
+
 
 <p align="center">
   <img src="PATH_logo.png" alt="drawing" width="100"/>
