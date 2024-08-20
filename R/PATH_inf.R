@@ -37,6 +37,7 @@ P_inf.XW <- function(X, W, mspd) {
   W <- rowNorm(W)
   W <- W/sum(W)
   Freq <- as.matrix(t(X)%*%W%*%X)
+  Freq <- (Freq + t(Freq))/2
   u <- rowSums(Freq)
   
   Pt <- diag(1/u)%*%Freq

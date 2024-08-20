@@ -122,7 +122,8 @@ PATHpro.XW <- function(X, W, t, guess_list = NULL, total_prolif_rate_est = NULL,
   for(i in 1:length(W)) {
     W[[i]] <- rowNorm(W[[i]])
     W[[i]] <- W[[i]]/sum(W[[i]])
-    Freqs[[i]] <- as.matrix(Matrix::t(X)%*%W[[i]]%*%X)
+    Fr <- as.matrix(Matrix::t(X)%*%W[[i]]%*%X)
+    Freqs[[i]] <- (Fr + t(Fr))/2
   }
   if(is.null(guess_list)) {
     n <- ncol(X)
